@@ -6,8 +6,8 @@ apply plugin: 'maven'
 apply plugin: 'idea'
 apply plugin: "signing"
 
-sourceCompatibility = 1.6
-targetCompatibility = 1.6
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -66,6 +66,12 @@ uploadArchives {
                         url "scm:git@github.com:be-hase/output-capture.git"
                         connection "scm:git@github.com:be-hase/output-capture.git"
                         developerConnection "scm:git@github.com:be-hase/output-capture.git"
+                    }
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
                     }
                     developers {
                         developer {
