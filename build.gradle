@@ -1,0 +1,88 @@
+group 'com.be-hase.output-capture'
+version '0.0.1'
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: "signing"
+
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
+repositories {
+    mavenCentral()
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from "${buildDir}/javadoc"
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.12'
+}
+
+def isReleaseBuild
+def sonatypeRepositoryUrl
+if (hasProperty("release")) {
+    isReleaseBuild = true
+    sonatypeRepositoryUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+    isReleaseBuild = false
+    version += "-SNAPSHOT"
+}
+
+signing {
+    required { isReleaseBuild }
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        if (isReleaseBuild) {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: sonatypeRepositoryUrl) {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                pom.project {
+                    name 'output-capture'
+                    packaging 'jar'
+                    description 'Output capture for testing.'
+                    url 'https://github.com/be-hase/output-capture'
+
+                    scm {
+                        url "scm:git@github.com:be-hase/output-capture.git"
+                        connection "scm:git@github.com:be-hase/output-capture.git"
+                        developerConnection "scm:git@github.com:be-hase/output-capture.git"
+                    }
+                    developers {
+                        developer {
+                            id 'be-hase'
+                            name 'Ryosuke Hasebe'
+                            email 'hsb.1014@gmail.com'
+                        }
+                    }
+                }
+            }
+        } else {
+            mavenLocal()
+        }
+    }
+}
+
+dependencies {
+    compile group: 'junit', name: 'junit', version: '4.11'
+    compile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+}
